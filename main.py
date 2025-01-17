@@ -87,7 +87,7 @@ async def monitor_wallet():
     while True:
         transaction = await fetch_latest_transaction()
         await send_discord_notification(transaction)
-        await asyncio.sleep(12)
+        await asyncio.sleep(108)
 
 Thread(target=run_flask).start()
 
