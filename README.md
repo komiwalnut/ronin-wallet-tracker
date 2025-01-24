@@ -51,6 +51,40 @@ You can install the required packages by running:
 pip install -r requirements.txt
 ```
 
+### Using a Virtual Environment (Optional)
+
+To keep dependencies isolated, it's recommended to create a virtual environment.
+
+1. Create a virtual environment named `rwt-venv` in the project directory:
+
+    ```bash
+    python3 -m venv rwt-venv
+    ```
+
+2. Activate the virtual environment:
+
+    ```bash
+    source rwt-venv/bin/activate
+    ```
+
+3. Install the required dependencies:
+
+    ```bash
+    pip install -r requirements.txt
+    ```
+
+4. When done, you can deactivate the virtual environment using:
+
+    ```bash
+    deactivate
+    ```
+
+If you no longer need the virtual environment, you can remove it by deleting the `rwt-venv` folder:
+
+```bash
+rm -rf rwt-venv
+```
+
 ## Setup
 
 1. Clone this repository to your local machine:
