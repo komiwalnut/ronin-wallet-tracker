@@ -14,6 +14,11 @@ This Python script monitors a specific Ronin wallet for incoming ERC-20 token tr
   - Contract verification status (verified ✅ or unverified ❌)
 - Tracks up to the last 20 transactions to detect new activity.
 
+<img src="images/sample.png" alt="Received Token"/>
+<img src="images/sample2.png" alt="Transferred Token"/>
+<img src="images/sample3.png" alt="Old Version of Received Token"/>
+
+
 ### How It Works
 
 This script checks the specified Ronin wallet for new transactions at an interval of 108 seconds. The interval is chosen to ensure efficient usage of Moralis's free-tier API limits:
