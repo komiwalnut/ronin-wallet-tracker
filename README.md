@@ -4,13 +4,15 @@ This Python script monitors a specific Ronin wallet for incoming ERC-20 token tr
 
 ## Features
 
-- Monitors a specified Ronin wallet for incoming ERC-20 token transfers.
-- Sends a Discord notification when a new transaction is detected.
-- Includes detailed information about the transaction in the notification:
+- Monitors a specified Ronin wallet for both incoming and outgoing ERC-20 token transfers.
+- Sends a Discord notification when new transactions are detected.
+- Notifications include detailed transaction information:
   - Token symbol
   - Transaction hash
-  - Sender address
-  - Amount received
+  - Sender or recipient address
+  - Amount transferred (formatted with commas and up to 3 decimal places)
+  - Contract verification status (verified ✅ or unverified ❌)
+- Tracks up to the last 20 transactions to detect new activity.
 
 ### How It Works
 
@@ -26,7 +28,7 @@ By setting the interval to 108 seconds, the script ensures that API calls stay w
 
 ## Purpose
 
-The Ronin Mobile Wallet application only supports notifications for a single address. In my case, I needed to monitor an additional address to check if my wallet has received any airdrops, as the app refuses to send notifications for other addresses.
+The Ronin Mobile Wallet application only supports notifications for a single address (weird and already reported). In my case, I needed to monitor an additional address to check if my wallet has received any airdrops, especially with the recent release of Tama.Meme, as the app refuses to send notifications for other addresses.
 
 This script is designed to track a single wallet efficiently. If you need to monitor multiple wallets, be aware that each additional wallet increases the number of API calls. To stay within the free-tier limit, you must either:
 
