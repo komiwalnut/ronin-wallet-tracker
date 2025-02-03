@@ -127,7 +127,7 @@ To ensure the script runs continuously and restarts automatically after server r
 2. Start the script using PM2:
     
     ```bash
-    pm2 start main.py --interpreter python3 --name ronin-wallet-tracker
+    pm2 start main.py --interpreter rwt-venv/bin/python3 --name ronin-wallet-tracker
     ```
 
 3. Save the PM2 process list to ensure it starts on system reboot:
