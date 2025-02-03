@@ -1,16 +1,47 @@
 import os
+import json
 from dotenv import load_dotenv
 import asyncio
 import aiohttp
 from discord_webhook import DiscordWebhook, DiscordEmbed
-from datetime import datetime
+from datetime import datetime, timezone
 
 load_dotenv()
 MORALIS_API_KEY = os.getenv("MORALIS")
 DISCORD_WEBHOOK_URL = os.getenv("WEBHOOK")
 RONIN_WALLET_ADDRESS = os.getenv("ADDRESS").lower()
 
-last_tx_hashes = []
+CACHE_DIR = "./data"
+CACHE_FILE = os.path.join(CACHE_DIR, "transactions.json")
+MAX_CACHE_SIZE = 100
+
+
+def ensure_cache_file():
+    if not os.path.exists(CACHE_DIR):
+        os.makedirs(CACHE_DIR)
+    if not os.path.isfile(CACHE_FILE):
+        with open(CACHE_FILE, "w") as f:
+            json.dump([], f)
+
+
+def load_cached_tx_hashes():
+    ensure_cache_file()
+    with open(CACHE_FILE, "r") as f:
+        try:
+            data = json.load(f)
+            if isinstance(data, list):
+                return data
+            else:
+                return []
+        except json.JSONDecodeError:
+            return []
+
+
+def save_cached_tx_hashes(tx_hashes):
+    if len(tx_hashes) > MAX_CACHE_SIZE:
+        tx_hashes = tx_hashes[-MAX_CACHE_SIZE:]
+    with open(CACHE_FILE, "w") as f:
+        json.dump(tx_hashes, f, indent=4)
 
 
 def format_timestamp(timestamp):
@@ -63,6 +94,7 @@ async def send_discord_notification(transaction, incoming):
     embed.add_embed_field(name=f"{'From' if incoming else 'To'}", value=address, inline=False)
     embed.add_embed_field(name="Amount", value=amount_formatted, inline=True)
     embed.add_embed_field(name="Verified", value=verified_status, inline=True)
+    embed.set_timestamp(datetime.now(timezone.utc))
     embed.set_footer(text="Disclaimer: Transactions with ❌ involves unverified contracts. Exercise caution.")
 
     webhook = DiscordWebhook(url=DISCORD_WEBHOOK_URL)
@@ -74,17 +106,19 @@ async def send_discord_notification(transaction, incoming):
 
 
 async def monitor_wallet():
-    global last_tx_hashes
     while True:
+        cached_tx_hashes = load_cached_tx_hashes()
         transactions = await fetch_latest_transactions()
-        new_tx_hashes = [tx["transaction_hash"] for tx in transactions]
+        new_transactions = [tx for tx in transactions if tx["transaction_hash"] not in cached_tx_hashes]
 
-        for transaction in transactions[::-1]:
-            if transaction["transaction_hash"] not in last_tx_hashes:
-                incoming = transaction["to_address"].lower() == RONIN_WALLET_ADDRESS
-                await send_discord_notification(transaction, incoming)
+        new_transactions_sorted = sorted(new_transactions, key=lambda tx: tx["block_timestamp"])
 
-        last_tx_hashes = new_tx_hashes
+        for transaction in new_transactions_sorted:
+            incoming = transaction["to_address"].lower() == RONIN_WALLET_ADDRESS
+            await send_discord_notification(transaction, incoming)
+            cached_tx_hashes.append(transaction["transaction_hash"])
+
+        save_cached_tx_hashes(cached_tx_hashes)
         await asyncio.sleep(108)
 
 
