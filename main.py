@@ -49,10 +49,6 @@ def format_timestamp(timestamp):
     return dt_object.strftime("%B %d, %Y %I:%M:%S %p UTC")
 
 
-def format_amount(amount):
-    return f"{float(amount):,.4f}"
-
-
 async def fetch_latest_transactions():
     url = f"https://deep-index.moralis.io/api/v2.2/{RONIN_WALLET_ADDRESS}/erc20/transfers"
     headers = {"X-API-Key": MORALIS_API_KEY}
@@ -83,7 +79,8 @@ async def send_discord_notification(transaction, incoming):
     readable_timestamp = format_timestamp(block_timestamp)
     verified_status = "✅" if verified_contract else "❌"
     tx_link = f"https://app.roninchain.com/tx/{tx_hash}"
-    amount_formatted = format_amount(value_decimal)
+    value_decimal = float(value_decimal)
+    amount_formatted = int(value_decimal) if value_decimal.is_integer() else f"{value_decimal:.4f}"
 
     embed_title = f"{'Received' if incoming else 'Transferred'} Token: {token_symbol}"
     embed_color = 0x00FF00 if incoming else 0xFF0000
